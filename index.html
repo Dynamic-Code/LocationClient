@@ -11,9 +11,8 @@
     <button onclick="startLocationSharing()">Start Sharing Location</button>
 
     <script>
-        const serverUrl = 'https://localhost:5001/api/location/updateLocation'; // Your API endpoint
+        const serverUrl = 'https://localhost:7167/api/Location/updateLocation';
 
-        // Function to send location data to the server
         async function sendLocation(latitude, longitude) {
             try {
                 const response = await fetch(serverUrl, {
@@ -39,22 +38,19 @@
             if ("geolocation" in navigator) {
                 document.getElementById('status').innerText = "Starting location sharing...";
 
-                // Use `setInterval` to send the location every 20 seconds
-                setInterval(() => {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const { latitude, longitude } = position.coords;
-                            console.log("Location obtained:", latitude, longitude);
-                            document.getElementById('status').innerText = `Location: ${latitude}, ${longitude}`;
-                            sendLocation(latitude, longitude);
-                        },
-                        (error) => {
-                            console.error('Error getting location:', error.message);
-                            document.getElementById('status').innerText = `Error getting location: ${error.message}`;
-                        },
-                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                    );
-                }, 20000); // Send location every 20 seconds
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        console.log("Location obtained:", latitude, longitude);
+                        document.getElementById('status').innerText = `Location: ${latitude}, ${longitude}`;
+                        sendLocation(latitude, longitude);
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error.message);
+                        document.getElementById('status').innerText = `Error getting location: ${error.message}`;
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
             } else {
                 document.getElementById('status').innerText = 'Geolocation is not supported by this browser.';
             }
