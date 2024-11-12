@@ -30,7 +30,7 @@
                 }
             } catch (error) {
                 console.error('Error sending location:', error);
-                document.getElementById('status').innerText = 'Error sending location to the server';
+                document.getElementById('status').innerText = 'Error sending location to the server: ${error}';
             }
         }
 
