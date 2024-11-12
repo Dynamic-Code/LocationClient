@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Sharing Client</title>
+</head>
+<body>
+    <h1>Location Sharing Client</h1>
+    <p id="status">Click "Start Sharing Location" to begin.</p>
+    <button onclick="startLocationSharing()">Start Sharing Location</button>
+
+    <script>
+        const serverUrl = 'https://localhost:7167/api/Location/updateLocation';
+
+        async function sendLocation(latitude, longitude) {
+            try {
+                const response = await fetch(serverUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ latitude, longitude })
+                });
+
+                if (response.ok) {
+                    console.log('Location sent:', { latitude, longitude });
+                    document.getElementById('status').innerText = `Location sent: ${latitude}, ${longitude}`;
+                } else {
+                    console.error('Failed to send location:', response.status);
+                    document.getElementById('status').innerText = `Failed to send location. Status: ${response.status}`;
+                }
+            } catch (error) {
+                console.error('Error sending location:', error);
+                document.getElementById('status').innerText = 'Error sending location to the server';
+            }
+        }
+
+        function startLocationSharing() {
+            if ("geolocation" in navigator) {
+                document.getElementById('status').innerText = "Starting location sharing...";
+
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        console.log("Location obtained:", latitude, longitude);
+                        document.getElementById('status').innerText = `Location: ${latitude}, ${longitude}`;
+                        sendLocation(latitude, longitude);
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error.message);
+                        document.getElementById('status').innerText = `Error getting location: ${error.message}`;
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                document.getElementById('status').innerText = 'Geolocation is not supported by this browser.';
+            }
+        }
+    </script>
+</body>
+</html>
